@@ -1,5 +1,5 @@
-from flask import Flask, render_template, url_for, redirect
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, url_for, redirect, request
+import author_rating_combo, content_based_filtering, cluster_try, collaborative
 from flask_login import (
     UserMixin,
     login_user,
@@ -8,18 +8,17 @@ from flask_login import (
     logout_user,
     current_user,
 )
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError
-from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 app = Flask(__name__)
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("dataset/book_data.csv")
+df = pd.read_excel(
+    "dataset_cluster_added.xlsx",
+)
 df.fillna(value="", inplace=True)
 
 
@@ -43,27 +42,50 @@ df["book_pages"] = (
 )
 
 
+@app.route("/recommend_collaborative", methods=["GET", "POST"])
+def recommend_collaborative():
+    if request.method == "POST":
+        # get form data
+        cluster = int(request.form["cluster"])
+        user_id = int(request.form["user_id"])
+        # title = request.form["title"]
+        # print(title, cluster, df.head)
+        books = collaborative.recommend(user_id, cluster)
+        top = books
+        # print(top)
+        return render_template(
+            "recommend_collaborative.html",
+            book_name=list(top["book_title"].values),
+            author=list(top["book_authors"].values),
+            image=list(top["image_url"].values),
+            votes=list(top["book_rating_count"].values),
+            rating=list(top["book_rating"].values),
+            indices=list(top.index),
+        )
+    else:
+        return render_template("recommend_collaborative.html")
+
+
 @app.route("/recommend_genre")
 def recommend_genre():
-    user_input = request.form.get("user_input")
-    index = np.where(pt.index == user_input)[0][0]
-    similar_items = sorted(
-        list(enumerate(similarity_scores[index])), key=lambda x: x[1], reverse=True
-    )[1:5]
-
-    data = []
-    for i in similar_items:
-        item = []
-        temp_df = books[books["Book-Title"] == pt.index[i[0]]]
-        item.extend(list(temp_df.drop_duplicates("Book-Title")["Book-Title"].values))
-        item.extend(list(temp_df.drop_duplicates("Book-Title")["Book-Author"].values))
-        item.extend(list(temp_df.drop_duplicates("Book-Title")["Image-URL-M"].values))
-
-        data.append(item)
-
-    print(data)
-
-    return render_template("recommend.html", data=data)
+    if request.method == "POST":
+        # get form data
+        title = request.form["title"]
+        print(title)
+        books = cluster_try.recommend(title)
+        top = books
+        print(top)
+        return render_template(
+            "recommend.html",
+            book_name=list(top["book_title"].values),
+            author=list(top["book_authors"].values),
+            image=list(top["image_url"].values),
+            votes=list(top["book_rating_count"].values),
+            rating=list(top["book_rating"].values),
+            indices=list(top.index),
+        )
+    else:
+        return render_template("recommend.html")
 
 
 @app.route("/")
@@ -86,9 +108,49 @@ def book_desc(index):
     return render_template("book_description.html", book=book)
 
 
-@app.route("/recommend")
-def recommend_ui():
-    return render_template("recommend.html")
+@app.route("/recommend_desc", methods=["GET", "POST"])
+def recommend_desc():
+    if request.method == "POST":
+        # get form data
+        cluster = int(request.form["cluster"])
+        title = request.form["title"]
+        # print(title, cluster, df.head)
+        books = content_based_filtering.recommend(cluster, title, df)
+        top = books
+        # print(top)
+        return render_template(
+            "recommend_desc.html",
+            book_name=list(top["book_title"].values),
+            author=list(top["book_authors"].values),
+            image=list(top["image_url"].values),
+            votes=list(top["book_rating_count"].values),
+            rating=list(top["book_rating"].values),
+            indices=list(top.index),
+        )
+    else:
+        return render_template("recommend_desc.html")
+
+
+@app.route("/recommend_author_rating", methods=["GET", "POST"])
+def recommend_author_rating():
+    if request.method == "POST":
+        # get form data
+        title = request.form["title"]
+        print(title)
+        books = author_rating_combo.recommend(title, df)
+        top = books
+        print(top)
+        return render_template(
+            "recommend.html",
+            book_name=list(top["book_title"].values),
+            author=list(top["book_authors"].values),
+            image=list(top["image_url"].values),
+            votes=list(top["book_rating_count"].values),
+            rating=list(top["book_rating"].values),
+            indices=list(top.index),
+        )
+    else:
+        return render_template("recommend.html")
 
 
 @app.route("/recommend_books", methods=["post"])
@@ -114,6 +176,7 @@ def recommend():
     return render_template("recommend.html", data=data)
 
 
+"""
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), nullable=False, unique=True)
@@ -193,6 +256,6 @@ def register():
 
     return render_template("register.html", form=form)
 
-
+"""
 if __name__ == "__main__":
     app.run(debug=True)

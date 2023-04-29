@@ -8,24 +8,24 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import pickle
 
-df = pd.read_csv("dataset/book_data.csv")
+# df = pd.read_csv("dataset/book_data.csv")
 
-
+df = pd.read_excel(
+    "dataset_cluster_added.xlsx",
+)
 df.fillna(value="", inplace=True)
+
+
 df.drop_duplicates(subset=["book_title"], inplace=True)
 
 
 df["genres"] = df["genres"].apply(lambda x: x.split("|"))
 
-
 df["book_authors"] = df["book_authors"].apply(lambda x: x.split("|"))
 
-
-# print(df["book_pages"].unique())
 df["book_pages"] = pd.to_numeric(
     df["book_pages"].str.replace(" pages", ""), errors="coerce"
 )
-
 
 df["book_pages"] = (
     df["book_pages"]
@@ -34,36 +34,68 @@ df["book_pages"] = (
     .replace("", np.nan)
     .astype(float)
 )
-print(df["book_title"].count())
 
 
-vectorizer = TfidfVectorizer(stop_words="english")
+def recommend(selected_cluster, title, df):
+    df2 = pd.read_excel(
+        "dataset_cluster_added.xlsx",
+    )
+    df2.fillna(value="", inplace=True)
 
-books_desc_vector = vectorizer.fit_transform(df["book_desc"].values.astype(str))
+    df2.drop_duplicates(subset=["book_title"], inplace=True)
 
-print(f"\nBook description vector shape is {books_desc_vector.shape}\n")
+    df2["genres"] = df2["genres"].apply(lambda x: x.split("|"))
 
-all_in_vectors = vectorizer.get_feature_names_out()
+    df2["book_authors"] = df2["book_authors"].apply(lambda x: x.split("|"))
 
-cos_similarities = cosine_similarity(books_desc_vector)
-print(f"Cosine similarities shape {cos_similarities.shape}\n")
+    df2["book_pages"] = pd.to_numeric(
+        df2["book_pages"].str.replace(" pages", ""), errors="coerce"
+    )
 
+    df2["book_pages"] = (
+        df2["book_pages"]
+        .astype(str)
+        .str.replace(" pages", "")
+        .replace("", np.nan)
+        .astype(float)
+    )
+    print("\n\n\t\tChecking true or not\n\n")
+    print(df == df2)
+    # filter DataFrame to include only rows with selected cluster number
+    df = df.loc[df["Cluster Number"] == selected_cluster]
+    df = df.reset_index(drop=True)
+    vectorizer = TfidfVectorizer(stop_words="english")
+    print(vectorizer)
+    books_desc_vector = vectorizer.fit_transform(df["book_desc"].values.astype(str))
 
-df2 = df[["book_title", "book_authors", "book_desc"]]
+    # print(f"\nBook description vector shape is {books_desc_vector.shape}\n")
 
+    all_in_vectors = vectorizer.get_feature_names_out()
 
-indices = pd.Series(df2.index, index=df["book_title"]).drop_duplicates()
+    cos_similarities = cosine_similarity(books_desc_vector)
+    # print(f"Cosine similarities shape {cos_similarities.shape}\n")
 
+    df2 = df[["book_title", "book_authors", "book_desc"]]
 
-def give_recommendation(title, cos_similarities=cos_similarities):
+    indices = pd.Series(df2.index, index=df["book_title"]).drop_duplicates()
+
     book_index = indices[title]
     similarity_scores = list(enumerate(cos_similarities[book_index]))
     similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
-    top_books = [i[0] for i in similarity_scores[1:5]]
-    recommended_books = df2.iloc[top_books]["book_title"].tolist()
-    return recommended_books
+    top_books = [i[0] for i in similarity_scores[:10]]
+    recommended_books = df2.iloc[top_books]
+    rec_books_list = recommended_books["book_title"].tolist()
+    new_df = df[df["book_title"].isin(rec_books_list)]
+    return new_df
 
 
+# book_name = input("Enter any name of the books\n")
+# selected_cluster = 3
+# recs2 = recommend(selected_cluster, book_name, df)
+# print(recs2)
+
+
+'''
 import string
 
 df["name_feature"] = ["name_{}".format(x) for x in df["book_title"]]
@@ -81,7 +113,6 @@ def raw_text_to_feature(
 
     return join_sep.join([filter_word(word) for word in s.split(sep)])
 
-
 df["name_feature"] = df["book_title"].apply(raw_text_to_feature)
 
 
@@ -91,9 +122,9 @@ df["corpus"] = pd.Series(
 df["corpus"] = df["corpus"].fillna("")
 
 
-print(
-    f'Corpus count -> {df["corpus"].count()}, Name feature count -> {df["name_feature"].count()}'
-)
+# print(
+# f'Corpus count -> {df["corpus"].count()}, Name feature count -> {df["name_feature"].count()}'
+# )
 
 
 vectorizer2 = TfidfVectorizer(stop_words="english")
@@ -120,13 +151,15 @@ def give_recommendation_name_desc(title, cos_similarities=cos_similarities2):
     print(similarity_scores)
     top_books = [i[0] for i in similarity_scores[:10]]
     recommended_books = [df2.iloc[top_books]["book_title"].tolist()]
-    print(type(recommended_books[0]))
-    res = []
-    for i, book in enumerate(recommended_books[0]):
-        res.append((book, similarity_scores[i][-1]))
-        print(res[-1])
-    return res
+    print(recommended_books)
+    # res = []
+    # for i, book in enumerate(recommended_books[0]):
+    #    res.append((book, similarity_scores[i][-1]))
+    #    print(res[-1])
+    return recommended_books
 
 
-# book_name = input("Enter any name of the books\n")
-# recs2 = give_recommendation_name_desc(book_name)
+book_name = input("Enter any name of the books\n")
+recs2 = give_recommendation_name_desc(book_name)
+print(recs2)
+'''

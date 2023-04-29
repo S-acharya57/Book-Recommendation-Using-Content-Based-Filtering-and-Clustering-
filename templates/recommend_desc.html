@@ -26,11 +26,14 @@
         <div class="row">
             <div class="col-md-12">
                 <h1 class="text-white" style="font-size:50px">Recommend Books</h1>
-                <form action="/recommend_author_rating" method="post">
+                <form action="/recommend_desc" method="post">
+                    <h1> Enter cluster number</h1><input name="cluster" type="text" class="form-control" id = "cluster">
                     <input name="title" type="text" class="form-control" id = "title"><br>
                     <input type="submit" class="btn btn-lg btn-warning">
                 </form>
             </div>
+
+
 
             {% if book_name %}
 
