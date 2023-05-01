@@ -13,11 +13,15 @@
 </style>
 <body style="background-color:black">
 
-    <nav class="navbar" style="background-color:#00a65a">
+    <nav class="navbar" style="background-color:#ededed">
         <a class="navbar-brand">My Book recommender</a>
         <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li>
-            <li><a href="/recommend">Recommend</a></li>
+            <li><a href="/" style="font-size: 20px;">Home</a></li>
+            <li><a href="/recommend_genre" style="font-size: 20px;">Recommend(Genres)</a></li>
+            <li><a href="/recommend_author_rating" style="font-size: 20px;">Recommend(Author and Rating)</a></li>
+            <li><a href="/recommend_desc" style="font-size: 20px;">Recommend(Book Description)</a></li>
+            <li><a href="/recommend_collaborative" style="font-size: 20px;">Recommend(Collaborative)</a></li>
+
             <li><a>Contact</a></li>
         </ul>
     </nav>
@@ -27,8 +31,8 @@
             <div class="col-md-12">
                 <h1 class="text-white" style="font-size:50px">Recommend Books</h1>
                 <form action="/recommend_desc" method="post">
-                    <h1> Enter cluster number</h1><input name="cluster" type="text" class="form-control" id = "cluster">
-                    <input name="title" type="text" class="form-control" id = "title"><br>
+                    <h1  style="color:#f9f9f9"> Enter cluster number</h1><input name="cluster" type="text" class="form-control" id = "cluster">
+                    <h1  style="color:#f9f9f9"> Enter book_title</h1><input name="title" type="text" class="form-control" id = "title"><br>
                     <input type="submit" class="btn btn-lg btn-warning">
                 </form>
             </div>
@@ -41,7 +45,7 @@
             <div class="col-md-4" style="margin-top:50px">
                 <div class="card">
                     <div class="card-body">
-                        <a href = "{{ url_for('book_desc', index=indices[i]) }}">
+                        <a href = "{{ url_for('book_desc',book_name=book_name[i]) }}">
                         <img class="card-img-top" src="{{ image[i] }}">
                         <h2 class="text-white">{{ book_name[i] }}</p>
                         </a>

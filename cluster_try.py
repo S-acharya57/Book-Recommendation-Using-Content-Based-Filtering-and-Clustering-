@@ -27,6 +27,10 @@ def recommend(book_title_choice):
         .replace("", np.nan)
         .astype(float)
     )
+
+    mlb = MultiLabelBinarizer()
+
+    genres_matrix = mlb.fit_transform(df["genres"])
     # print(genres_matrix.shape)
 
     kmeans_temp = KMeans(n_clusters=57, random_state=35).fit(genres_matrix)

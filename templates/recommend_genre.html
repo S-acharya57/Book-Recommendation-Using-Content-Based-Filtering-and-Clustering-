@@ -30,15 +30,11 @@
         <div class="row">
             <div class="col-md-12">
                 <h1 class="text-white" style="font-size:50px">Recommend Books</h1>
-                <form action="/recommend_collaborative" method="post">
-                    <h1 style="color:#f9f9f9"> Enter cluster number</h1><input name="cluster" type="text" class="form-control" id = "cluster">
-                    <p style="color:#f9f9f9">Enter user ID</p><input name="user_id" type="text" class="form-control" id = "user_id">
-                    
+                <form action="/recommend_genre" method="post">
+                    <h1  style="color:#f9f9f9"> Enter book_title</h1><input name="title" type="text" class="form-control" id = "title"><br>
                     <input type="submit" class="btn btn-lg btn-warning">
                 </form>
             </div>
-
-
 
             {% if book_name %}
 
@@ -46,7 +42,7 @@
             <div class="col-md-4" style="margin-top:50px">
                 <div class="card">
                     <div class="card-body">
-                        <a href = "{{ url_for('book_desc', book_name=book_name[i]) }}">
+                        <a href = "{{ url_for('book_desc',book_name=book_name[i]) }}">
                         <img class="card-img-top" src="{{ image[i] }}">
                         <h2 class="text-white">{{ book_name[i] }}</p>
                         </a>

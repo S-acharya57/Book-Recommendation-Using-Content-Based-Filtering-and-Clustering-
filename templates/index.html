@@ -13,14 +13,14 @@
 </style>
 <body style="background-color:black">
 
-    <nav class="navbar" style="background-color:#00a65a">
+    <nav class="navbar" style="background-color:#ededed">
         <a class="navbar-brand">My Book recommender</a>
         <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li>
-            <li><a href="/recommend_genre">Recommend(Genres)</a></li>
-            <li><a href="/recommend_author_rating">Recommend(Author and Rating)</a></li>
-            <li><a href="/recommend_desc">Recommend(Book Description)</a></li>
-            <li><a href="/recommend_collaborative">Recommend(Collaborative)</a></li>
+            <li><a href="/" style="font-size: 20px;">Home</a></li>
+            <li><a href="/recommend_genre" style="font-size: 20px;">Recommend(Genres)</a></li>
+            <li><a href="/recommend_author_rating" style="font-size: 20px;">Recommend(Author and Rating)</a></li>
+            <li><a href="/recommend_desc" style="font-size: 20px;">Recommend(Book Description)</a></li>
+            <li><a href="/recommend_collaborative" style="font-size: 20px;">Recommend(Collaborative)</a></li>
 
             <li><a>Contact</a></li>
         </ul>
@@ -36,7 +36,7 @@
                 <div class="col-md-4" style="margin-top:50px">
                     <div class="card">
                         <div class="card-body">
-                            <a href = "{{ url_for('book_desc', index=indices[i]) }}">
+                            <a href = "{{ url_for('book_desc', book_name=book_name[i]) }}">
                             <img class="card-img-top" src="{{ image[i] }}">
                             <h2 class="text-white">{{ book_name[i] }}</p>
                             </a>

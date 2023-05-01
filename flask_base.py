@@ -66,7 +66,7 @@ def recommend_collaborative():
         return render_template("recommend_collaborative.html")
 
 
-@app.route("/recommend_genre")
+@app.route("/recommend_genre", methods=["GET", "POST"])
 def recommend_genre():
     if request.method == "POST":
         # get form data
@@ -76,7 +76,7 @@ def recommend_genre():
         top = books
         print(top)
         return render_template(
-            "recommend.html",
+            "recommend_genre.html",
             book_name=list(top["book_title"].values),
             author=list(top["book_authors"].values),
             image=list(top["image_url"].values),
@@ -85,12 +85,20 @@ def recommend_genre():
             indices=list(top.index),
         )
     else:
-        return render_template("recommend.html")
+        return render_template("recommend_genre.html")
 
 
 @app.route("/")
 def index():
-    top = df.head(30)
+    v = df["book_rating_count"]
+    R = df["book_rating"]
+    C = df["book_rating"].mean()
+    m = df["book_rating_count"].quantile(0.70)
+
+    weighted_rating = (v / (v + m) * R) + (m / (v + m) * C)
+    df["weighted_rating"] = weighted_rating
+    top = df.sort_values("weighted_rating", ascending=False).head(30)
+
     return render_template(
         "index.html",
         book_name=list(top["book_title"].values),
@@ -102,9 +110,9 @@ def index():
     )
 
 
-@app.route("/book/<int:index>")
-def book_desc(index):
-    book = df.iloc[index]
+@app.route("/book/<book_name>")
+def book_desc(book_name):
+    book = df.loc[df["book_title"] == book_name].iloc[0]
     return render_template("book_description.html", book=book)
 
 

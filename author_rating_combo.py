@@ -31,6 +31,7 @@ df["book_pages"] = (
     .astype(float)
 )
 
+
 # print(df.describe())
 # print(df.info())
 # print(df.info)
@@ -69,6 +70,6 @@ def recommend(inp_book_title, df_all):
     return recommended_books
 
 
-book_name = input("Enter the name of a book")
-books = recommend(book_name, df)
-print(books["book_title"])
+# book_name = input("Enter the name of a book")
+# books = recommend(book_name, df)
+# print(books["book_title"])
