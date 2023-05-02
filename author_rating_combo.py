@@ -35,6 +35,8 @@ df["book_pages"] = (
 # print(df.describe())
 # print(df.info())
 # print(df.info)
+
+"""
 authors = [author for authors in df["book_authors"] for author in authors]
 unique_authors = list(set(authors))
 
@@ -50,17 +52,33 @@ df["author_labels"] = [
 
 # print(df["author_labels"])
 
+"""
+
 
 def recommend(inp_book_title, df_all):
-    book_index = df_all.index[df["book_title"] == inp_book_title].tolist()[0]
+    authors = [author for authors in df_all["book_authors"] for author in authors]
+    unique_authors = list(set(authors))
+
+    le = LabelEncoder()
+
+    author_labels = le.fit_transform(unique_authors)
+    author_dict = dict(zip(unique_authors, author_labels))
+
+    # Create a new column in the dataframe with the integer labels for each author
+    df_all["author_labels"] = [
+        list(map(lambda x: author_dict[x], authors))
+        for authors in df_all["book_authors"]
+    ]
+
+    book_index = df_all.index[df_all["book_title"] == inp_book_title].tolist()[0]
     # print(f'Book index is {book_index}')
 
-    book_authors = df.loc[book_index, "author_labels"]
+    book_authors = df_all.loc[book_index, "author_labels"]
     # print(f'Book authors are {book_authors}')
 
     # gives top rated books in order of the same authors
-    recommended_books = df[
-        df["author_labels"].apply(lambda x: set(x) == set(book_authors))
+    recommended_books = df_all[
+        df_all["author_labels"].apply(lambda x: set(x) == set(book_authors))
     ].sort_values("book_rating")
     # print(recommended_books)
 

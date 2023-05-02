@@ -37,30 +37,30 @@ df["book_pages"] = (
 
 
 def recommend(selected_cluster, title, df):
-    df2 = pd.read_excel(
-        "dataset_cluster_added.xlsx",
-    )
-    df2.fillna(value="", inplace=True)
+    # df2 = pd.read_excel(
+    #     "dataset_cluster_added.xlsx",
+    # )
+    # df2.fillna(value="", inplace=True)
 
-    df2.drop_duplicates(subset=["book_title"], inplace=True)
+    # df2.drop_duplicates(subset=["book_title"], inplace=True)
 
-    df2["genres"] = df2["genres"].apply(lambda x: x.split("|"))
+    # df2["genres"] = df2["genres"].apply(lambda x: x.split("|"))
 
-    df2["book_authors"] = df2["book_authors"].apply(lambda x: x.split("|"))
+    # df2["book_authors"] = df2["book_authors"].apply(lambda x: x.split("|"))
 
-    df2["book_pages"] = pd.to_numeric(
-        df2["book_pages"].str.replace(" pages", ""), errors="coerce"
-    )
+    # df2["book_pages"] = pd.to_numeric(
+    #     df2["book_pages"].str.replace(" pages", ""), errors="coerce"
+    # )
 
-    df2["book_pages"] = (
-        df2["book_pages"]
-        .astype(str)
-        .str.replace(" pages", "")
-        .replace("", np.nan)
-        .astype(float)
-    )
-    print("\n\n\t\tChecking true or not\n\n")
-    print(df == df2)
+    # df2["book_pages"] = (
+    #     df2["book_pages"]
+    #     .astype(str)
+    #     .str.replace(" pages", "")
+    #     .replace("", np.nan)
+    #     .astype(float)
+    # )
+    # print("\n\n\t\tChecking true or not\n\n")
+    # print(df == df2)
     # filter DataFrame to include only rows with selected cluster number
     df = df.loc[df["Cluster Number"] == selected_cluster]
     df = df.reset_index(drop=True)
